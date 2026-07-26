@@ -24,7 +24,6 @@ function init() {
   const container = document.getElementById('container');
 
   timer = new Timer();
-  timer.connect(document);
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
@@ -73,7 +72,11 @@ function init() {
   const gui = new GUI({ title: 'Merkaba Controls' });
 
   const modeFolder = gui.addFolder('Modo');
-  modeFolder.add({ mode: merkaba.mode }, 'mode', MODE_LABELS)
+  const modeOptions = {};
+  for (const key of MODE_KEYS) {
+    modeOptions[key] = MODES[key];
+  }
+  modeFolder.add({ mode: merkaba.mode }, 'mode', modeOptions)
     .name('Animación')
     .onChange(v => merkaba.setMode(v));
 
