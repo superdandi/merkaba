@@ -133,18 +133,20 @@ function buildGUI() {
   });
 
   const shapeNames = SHAPE_SETS[appState.currentSet];
-  const shapeDisplayName = {};
-  for (const key of shapeNames) shapeDisplayName[key] = SHAPE_LABELS[key];
-  gui.add({ shape: appState.currentShapeKey }, 'shape', shapeDisplayName).name('Forma').onChange(v => {
-    switchShape(v);
+  const shapeLabels = shapeNames.map(k => SHAPE_LABELS[k]);
+  const shapeKeyMap = {};
+  for (let i = 0; i < shapeNames.length; i++) shapeKeyMap[shapeLabels[i]] = shapeNames[i];
+  gui.add({ Forma: SHAPE_LABELS[appState.currentShapeKey] }, 'Forma', shapeLabels).name('Forma').onChange(v => {
+    switchShape(shapeKeyMap[v]);
   });
 
-  const modeDisplayName = {};
-  for (const key of MODE_KEYS) modeDisplayName[key] = MODES[key];
-  gui.add({ mode: appState.mode }, 'mode', modeDisplayName).name('Animación').onChange(v => {
-    appState.mode = v;
-    currentShape.setMode(v);
-    audio.setMode(v);
+  const modeLabels = MODE_KEYS.map(k => MODES[k]);
+  const modeKeyMap = {};
+  for (let i = 0; i < MODE_KEYS.length; i++) modeKeyMap[modeLabels[i]] = MODE_KEYS[i];
+  gui.add({ Animación: MODES[appState.mode] }, 'Animación', modeLabels).name('Animación').onChange(v => {
+    appState.mode = modeKeyMap[v];
+    currentShape.setMode(appState.mode);
+    audio.setMode(appState.mode);
   });
 
   if (appState.viewMode === 'full') {
