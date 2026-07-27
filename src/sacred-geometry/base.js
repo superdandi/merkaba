@@ -194,13 +194,6 @@ export class SacredShape {
         dBottom.y = -s * this.topDir * dt;
         break;
       }
-      case 'PENDULUM': {
-        const angle = Math.sin(this.t * this.pendulumFreq * Math.PI * 2) * this.pendulumAmp;
-        this.topGroup.rotation.y = angle;
-        this.bottomGroup.rotation.y = -angle;
-        this._updateSeparation();
-        return;
-      }
       case 'SPIRAL': {
         const s = this.baseSpeed;
         dTop.y = s * this.topDir * dt;
@@ -266,6 +259,13 @@ export class SacredShape {
     if (!this.topGroup || !this.bottomGroup) return;
 
     if (this.mode !== 'SPIRAL') this._updateSeparation();
+
+    if (this.mode === 'PENDULUM') {
+      const angle = Math.sin(this.t * this.pendulumFreq * Math.PI * 2) * this.pendulumAmp;
+      this.topGroup.rotation.y = angle;
+      this.bottomGroup.rotation.y = -angle;
+      return;
+    }
 
     const { dTop, dBottom } = this._computeRotations(dt);
 
