@@ -8,8 +8,9 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 
 import { Merkaba, MODES, MODE_KEYS, MODE_LABELS } from './merkaba.js';
+import { MerkabaAudio, CHAKRA_FREQUENCIES } from './merkaba-audio.js';
 
-let camera, renderer, composer, merkaba, timer;
+let camera, renderer, composer, merkaba, timer, audio;
 
 const bloomParams = {
   threshold: 0,
@@ -18,12 +19,21 @@ const bloomParams = {
   exposure: 1
 };
 
+const audioParams = {
+  volume: 0.3,
+  frequency: 528,
+  binaural: true,
+  binauralDelta: 4,
+  playing: false
+};
+
 init();
 
 function init() {
   const container = document.getElementById('container');
 
   timer = new Timer();
+  audio = new MerkabaAudio();
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
@@ -78,7 +88,10 @@ function init() {
   }
   modeFolder.add({ mode: merkaba.mode }, 'mode', modeOptions)
     .name('Animación')
-    .onChange(v => merkaba.setMode(v));
+    .onChange(v => {
+      merkaba.setMode(v);
+      audio.setMode(v);
+    });
 
   const motionFolder = gui.addFolder('Movimiento');
   motionFolder.add(merkaba, 'baseSpeed', 0, 3, 0.05).name('Velocidad base');
@@ -116,6 +129,28 @@ function init() {
   bloomFolder.add(bloomParams, 'radius', 0, 1, 0.05).name('Radius').onChange(v => bloomPass.radius = v);
   bloomFolder.add(bloomParams, 'exposure', 0.1, 2, 0.1).name('Exposure').onChange(v => renderer.toneMappingExposure = Math.pow(v, 4.0));
 
+  const audioFolder = gui.addFolder('Audio');
+  audioFolder.add(audioParams, 'playing').name('▶ Iniciar / Detener').onChange(v => {
+    if (v) audio.start(); else audio.stop();
+  });
+  audioFolder.add(audioParams, 'volume', 0, 1, 0.01).name('Volumen').onChange(v => audio.setVolume(v));
+  audioFolder.add(audioParams, 'frequency', 396, 963, 1).name('Frecuencia (Hz)').onChange(v => audio.setFrequency(v));
+  audioFolder.add(audioParams, 'binaural').name('Binaural beats').onChange(v => audio.toggleBinaural(v));
+  audioFolder.add(audioParams, 'binauralDelta', 1, 30, 1).name('Delta binaural (Hz)').onChange(v => audio.setBinauralDelta(v));
+
+  audioFolder.add({ chakra: 'plexo' }, 'chakra', {
+    'Raíz (396 Hz)': 396,
+    'Sacro (417 Hz)': 417,
+    'Plexo (528 Hz)': 528,
+    'Corazón (639 Hz)': 639,
+    'Garganta (741 Hz)': 741,
+    'Tercera (852 Hz)': 852,
+    'Corona (963 Hz)': 963
+  }).name('Chakra').onChange(v => {
+    audioParams.frequency = v;
+    audio.setFrequency(v);
+  });
+
   window.addEventListener('resize', onWindowResize);
 }
 
@@ -130,5 +165,6 @@ function animate() {
   timer.update();
   const delta = timer.getDelta();
   merkaba.update(delta);
+  audio.update(delta, merkaba);
   composer.render();
 }
