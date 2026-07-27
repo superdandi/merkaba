@@ -96,7 +96,11 @@ export class SacredShape {
     }
   }
 
-  setMode(mode) { this.mode = mode; }
+  setMode(mode) {
+    if (this.topGroup) this.topGroup.rotation.set(0, 0, 0);
+    if (this.bottomGroup) this.bottomGroup.rotation.set(0, 0, 0);
+    this.mode = mode;
+  }
 
   setSpeeds(base, top, bottom) {
     if (base !== undefined) this.baseSpeed = base;
