@@ -15,6 +15,7 @@ export class TorusShape extends SacredShape {
     this.bottomGroup.rotation.x = Math.PI;
     this.group.add(this.topGroup);
     this.group.add(this.bottomGroup);
+    if (this.instanceCount === 1) this.bottomGroup.visible = false;
     this._updateVisibility();
     this._updateSeparation();
   }
@@ -33,6 +34,7 @@ export class SphereShape extends SacredShape {
     this.bottomGroup.rotation.x = Math.PI;
     this.group.add(this.topGroup);
     this.group.add(this.bottomGroup);
+    if (this.instanceCount === 1) this.bottomGroup.visible = false;
     this._updateVisibility();
     this._updateSeparation();
   }

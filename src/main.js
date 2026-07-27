@@ -117,6 +117,13 @@ function switchShape(shapeKey) {
   });
   scene.add(currentShape.group);
   audio.setMode(params.mode);
+  params.instanceCount = currentShape.instanceCount;
+}
+
+function updateInstanceBinding() {
+  if (window._instBinding) {
+    window._instBinding.disabled = currentShape._lockedInstances;
+  }
 }
 
 function rebuildShapeOptions() {
@@ -141,7 +148,15 @@ function buildPane() {
   const shapeOptions = {};
   for (const key of SHAPE_SETS[params.currentSet]) shapeOptions[SHAPE_LABELS[key]] = key;
   const shapeBinding = shapeFolder.addBinding(params, 'currentShapeKey', { options: shapeOptions });
-  shapeBinding.on('change', (ev) => switchShape(ev.value));
+  shapeBinding.on('change', (ev) => {
+    switchShape(ev.value);
+    updateInstanceBinding();
+  });
+
+  params.instanceCount = currentShape.instanceCount;
+  const instBinding = shapeFolder.addBinding(params, 'instanceCount', { label: 'Instancias', min: 1, max: 2, step: 1 });
+  instBinding.on('change', (ev) => { params.instanceCount = ev.value; currentShape.setInstanceCount(ev.value); });
+  window._instBinding = instBinding;
 
   const modeOptions = {};
   for (const key of MODE_KEYS) modeOptions[MODES[key]] = key;
@@ -151,6 +166,10 @@ function buildPane() {
     currentShape.setMode(ev.value);
     audio.setMode(ev.value);
   });
+
+  const colorFolder = pane.addFolder({ title: 'Colores', expanded: false });
+  colorFolder.addBinding(params, 'colorTop', { label: 'Superior' }).on('change', (ev) => { params.colorTop = ev.value; currentShape.setColors(ev.value, undefined); });
+  colorFolder.addBinding(params, 'colorBottom', { label: 'Inferior' }).on('change', (ev) => { params.colorBottom = ev.value; currentShape.setColors(undefined, ev.value); });
 
   const motionFolder = pane.addFolder({ title: 'Movimiento', expanded: false });
   const speedBinding = motionFolder.addBinding(params, 'baseSpeed', { label: 'Velocidad', min: 0, max: 3, step: 0.05 });
@@ -174,10 +193,6 @@ function buildPane() {
   visualFolder.addBinding(params, 'showEdges', { label: 'Bordes' }).on('change', (ev) => { params.showEdges = ev.value; currentShape.setVisuals({ showEdges: ev.value }); });
   visualFolder.addBinding(params, 'faceOpacity', { label: 'Opacidad caras', min: 0, max: 1, step: 0.01 }).on('change', (ev) => { params.faceOpacity = ev.value; currentShape.setVisuals({ faceOpacity: ev.value }); });
   visualFolder.addBinding(params, 'edgeThickness', { label: 'Grosor bordes', min: 1, max: 5, step: 1 }).on('change', (ev) => { params.edgeThickness = ev.value; currentShape.setVisuals({ edgeThickness: ev.value }); });
-
-  const colorFolder = pane.addFolder({ title: 'Colores', expanded: false });
-  colorFolder.addBinding(params, 'colorTop', { label: 'Superior' }).on('change', (ev) => { params.colorTop = ev.value; currentShape.setColors(ev.value, undefined); });
-  colorFolder.addBinding(params, 'colorBottom', { label: 'Inferior' }).on('change', (ev) => { params.colorBottom = ev.value; currentShape.setColors(undefined, ev.value); });
 
   const bloomFolder = pane.addFolder({ title: 'Bloom', expanded: false });
   bloomFolder.addBinding(params, 'bloomThreshold', { label: 'Threshold', min: 0, max: 1, step: 0.05 }).on('change', (ev) => { bloomPass.threshold = ev.value; });

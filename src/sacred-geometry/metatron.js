@@ -20,6 +20,7 @@ export class SeedOfLifeShape extends SacredShape {
     this._buildSeed(this.bottomGroup, this.colorBottom, true);
     this.group.add(this.topGroup);
     this.group.add(this.bottomGroup);
+    if (this.instanceCount === 1) this.bottomGroup.visible = false;
     this._updateVisibility();
     this._updateSeparation();
   }
@@ -64,6 +65,7 @@ export class FlowerOfLifeShape extends SacredShape {
     this._buildFlower(this.bottomGroup, this.colorBottom, true);
     this.group.add(this.topGroup);
     this.group.add(this.bottomGroup);
+    if (this.instanceCount === 1) this.bottomGroup.visible = false;
     this._updateVisibility();
     this._updateSeparation();
   }
@@ -112,6 +114,7 @@ export class MetatronCubeShape extends SacredShape {
     this._buildCube(this.bottomGroup, this.colorBottom, true);
     this.group.add(this.topGroup);
     this.group.add(this.bottomGroup);
+    if (this.instanceCount === 1) this.bottomGroup.visible = false;
     this._updateVisibility();
     this._updateSeparation();
   }

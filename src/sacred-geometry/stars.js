@@ -11,7 +11,7 @@ function alignTetrahedronToUp(geometry) {
 
 export class MerkabaShape extends SacredShape {
   constructor(options = {}) {
-    super(options);
+    super({ ...options, instanceCount: 2, lockedInstances: true });
     this.topGroup = new THREE.Group();
     this.bottomGroup = new THREE.Group();
     const geom = alignTetrahedronToUp(new THREE.TetrahedronGeometry(this.radius, 0));
@@ -48,6 +48,7 @@ export class StarDavidShape extends SacredShape {
     this._buildHalf(this.bottomGroup, geom1, geom2, this.colorBottom, true);
     this.group.add(this.topGroup);
     this.group.add(this.bottomGroup);
+    if (this.instanceCount === 1) this.bottomGroup.visible = false;
     this._updateVisibility();
     this._updateSeparation();
   }
@@ -82,6 +83,7 @@ export class CubicStarShape extends SacredShape {
     this._buildHalf(this.bottomGroup, geom1, geom2, this.colorBottom, true);
     this.group.add(this.topGroup);
     this.group.add(this.bottomGroup);
+    if (this.instanceCount === 1) this.bottomGroup.visible = false;
     this._updateVisibility();
     this._updateSeparation();
   }

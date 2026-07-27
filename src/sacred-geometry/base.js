@@ -28,6 +28,8 @@ export class SacredShape {
     this.edgeThickness = options.edgeThickness ?? 1;
     this.showFaces = options.showFaces ?? true;
     this.showEdges = options.showEdges ?? true;
+    this.instanceCount = options.instanceCount ?? 1;
+    this._lockedInstances = options.lockedInstances ?? false;
 
     this.group = new THREE.Group();
     this.t = 0;
@@ -100,6 +102,17 @@ export class SacredShape {
     if (this.topGroup) this.topGroup.rotation.set(0, 0, 0);
     if (this.bottomGroup) this.bottomGroup.rotation.set(0, 0, 0);
     this.mode = mode;
+  }
+
+  setInstanceCount(n) {
+    if (this._lockedInstances) return;
+    this.instanceCount = n;
+    if (this.bottomGroup) this.bottomGroup.visible = (n === 2);
+    if (n === 1) {
+      this.topGroup.position.y = 0;
+    } else {
+      this._updateSeparation();
+    }
   }
 
   setSpeeds(base, top, bottom) {
