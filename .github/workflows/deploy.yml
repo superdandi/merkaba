@@ -1,4 +1,4 @@
-name: ${{ github.event.head_commit.message }}
+name: Deploy Merkaba
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
 
 jobs:
   build-and-deploy:
+    name: ${{ github.event.head_commit.message }}
     runs-on: ubuntu-latest
     permissions:
       pages: write
