@@ -20,8 +20,8 @@ let gui = null;
 const appState = {
   currentSet: 'Estrellas',
   currentShapeKey: 'merkaba',
-  viewMode: 'full',
-  mode: MODES.SYNC_OPPOSITE,
+  viewMode: 'simple',
+  mode: 'SYNC_SAME',
   baseSpeed: 0.8,
   separation: 0,
   ratio: 34 / 21,
@@ -60,7 +60,7 @@ function init() {
   const pointLight = new THREE.PointLight(0xffffff, 20);
   camera.add(pointLight);
 
-  currentShape = createShape('merkaba');
+  currentShape = createShape('merkaba', { mode: 'SYNC_SAME' });
   scene.add(currentShape.group);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -116,7 +116,7 @@ function switchShape(shapeKey) {
 
 function buildGUI() {
   if (gui) gui.destroy();
-  gui = new GUI({ title: 'Merkaba Controls' });
+  gui = new GUI({ title: 'Merkaba Controls', closeFolders: true });
 
   const viewToggle = { vista: appState.viewMode === 'full' ? 'Completa' : 'Simplificada' };
   gui.add(viewToggle, 'vista', ['Completa', 'Simplificada']).name('Vista').onChange(v => {
@@ -124,24 +124,24 @@ function buildGUI() {
     buildGUI();
   });
 
-  const shapeSetOptions = {};
-  for (const setName of Object.keys(SHAPE_SETS)) shapeSetOptions[setName] = setName;
-  gui.add({ set: appState.currentSet }, 'set', shapeSetOptions).name('Set').onChange(v => {
+  const shapeSetNames = Object.keys(SHAPE_SETS);
+  gui.add({ set: appState.currentSet }, 'set', shapeSetNames).name('Set').onChange(v => {
     appState.currentSet = v;
     const firstShape = SHAPE_SETS[v][0];
     if (firstShape !== appState.currentShapeKey) switchShape(firstShape);
     buildGUI();
   });
 
-  const shapeOptions = {};
-  for (const key of SHAPE_SETS[appState.currentSet]) shapeOptions[key] = SHAPE_LABELS[key];
-  gui.add({ shape: appState.currentShapeKey }, 'shape', shapeOptions).name('Forma').onChange(v => {
+  const shapeNames = SHAPE_SETS[appState.currentSet];
+  const shapeDisplayName = {};
+  for (const key of shapeNames) shapeDisplayName[key] = SHAPE_LABELS[key];
+  gui.add({ shape: appState.currentShapeKey }, 'shape', shapeDisplayName).name('Forma').onChange(v => {
     switchShape(v);
   });
 
-  const modeOptions = {};
-  for (const key of MODE_KEYS) modeOptions[key] = MODES[key];
-  gui.add({ mode: appState.mode }, 'mode', modeOptions).name('Animación').onChange(v => {
+  const modeDisplayName = {};
+  for (const key of MODE_KEYS) modeDisplayName[key] = MODES[key];
+  gui.add({ mode: appState.mode }, 'mode', modeDisplayName).name('Animación').onChange(v => {
     appState.mode = v;
     currentShape.setMode(v);
     audio.setMode(v);
@@ -149,18 +149,9 @@ function buildGUI() {
 
   if (appState.viewMode === 'full') {
     const motionFolder = gui.addFolder('Movimiento');
-    motionFolder.add(appState, 'baseSpeed', 0, 3, 0.05).name('Velocidad base').onChange(v => {
-      appState.baseSpeed = v;
-      currentShape.baseSpeed = v;
-    });
-    motionFolder.add(appState, 'separation', 0, 3, 0.05).name('Separación').onChange(v => {
-      appState.separation = v;
-      currentShape.setSeparation(v);
-    });
-    motionFolder.add(appState, 'ratio', 1, 5, 0.1).name('Ratio').onChange(v => {
-      appState.ratio = v;
-      currentShape.setRatio(v);
-    });
+    motionFolder.add(appState, 'baseSpeed', 0, 3, 0.05).name('Velocidad base').onChange(v => { appState.baseSpeed = v; currentShape.baseSpeed = v; });
+    motionFolder.add(appState, 'separation', 0, 3, 0.05).name('Separación').onChange(v => { appState.separation = v; currentShape.setSeparation(v); });
+    motionFolder.add(appState, 'ratio', 1, 5, 0.1).name('Ratio').onChange(v => { appState.ratio = v; currentShape.setRatio(v); });
 
     const pulseFolder = gui.addFolder('Pulso / Efectos');
     pulseFolder.add(appState, 'pulseFreq', 0.1, 3, 0.1).name('Freq pulso').onChange(v => { currentShape.pulseFreq = v; });
@@ -173,34 +164,16 @@ function buildGUI() {
   }
 
   const visualFolder = appState.viewMode === 'full' ? gui.addFolder('Visual') : gui;
-  visualFolder.add(appState, 'showFaces').name('Caras').onChange(v => {
-    appState.showFaces = v;
-    currentShape.setVisuals({ showFaces: v });
-  });
-  visualFolder.add(appState, 'showEdges').name('Bordes').onChange(v => {
-    appState.showEdges = v;
-    currentShape.setVisuals({ showEdges: v });
-  });
+  visualFolder.add(appState, 'showFaces').name('Caras').onChange(v => { appState.showFaces = v; currentShape.setVisuals({ showFaces: v }); });
+  visualFolder.add(appState, 'showEdges').name('Bordes').onChange(v => { appState.showEdges = v; currentShape.setVisuals({ showEdges: v }); });
   if (appState.viewMode === 'full') {
-    visualFolder.add(appState, 'faceOpacity', 0, 1, 0.01).name('Opacidad caras').onChange(v => {
-      appState.faceOpacity = v;
-      currentShape.setVisuals({ faceOpacity: v });
-    });
-    visualFolder.add(appState, 'edgeThickness', 1, 5, 1).name('Grosor bordes').onChange(v => {
-      appState.edgeThickness = v;
-      currentShape.setVisuals({ edgeThickness: v });
-    });
+    visualFolder.add(appState, 'faceOpacity', 0, 1, 0.01).name('Opacidad caras').onChange(v => { appState.faceOpacity = v; currentShape.setVisuals({ faceOpacity: v }); });
+    visualFolder.add(appState, 'edgeThickness', 1, 5, 1).name('Grosor bordes').onChange(v => { appState.edgeThickness = v; currentShape.setVisuals({ edgeThickness: v }); });
   }
 
   const colorFolder = gui.addFolder('Colores');
-  colorFolder.addColor(appState, 'colorTop').name('Superior').onChange(v => {
-    appState.colorTop = v;
-    currentShape.setColors(v, undefined);
-  });
-  colorFolder.addColor(appState, 'colorBottom').name('Inferior').onChange(v => {
-    appState.colorBottom = v;
-    currentShape.setColors(undefined, v);
-  });
+  colorFolder.addColor(appState, 'colorTop').name('Superior').onChange(v => { appState.colorTop = v; currentShape.setColors(v, undefined); });
+  colorFolder.addColor(appState, 'colorBottom').name('Inferior').onChange(v => { appState.colorBottom = v; currentShape.setColors(undefined, v); });
 
   if (appState.viewMode === 'full') {
     const bloomFolder = gui.addFolder('Bloom');
@@ -211,9 +184,7 @@ function buildGUI() {
   }
 
   const audioFolder = gui.addFolder('Audio');
-  audioFolder.add(audioParams, 'playing').name('▶ Iniciar / Detener').onChange(v => {
-    if (v) audio.start(); else audio.stop();
-  });
+  audioFolder.add(audioParams, 'playing').name('▶ Iniciar / Detener').onChange(v => { if (v) audio.start(); else audio.stop(); });
   audioFolder.add(audioParams, 'volume', 0, 1, 0.01).name('Volumen').onChange(v => audio.setVolume(v));
   if (appState.viewMode === 'full') {
     audioFolder.add(audioParams, 'frequency', 396, 963, 1).name('Frecuencia (Hz)').onChange(v => audio.setFrequency(v));

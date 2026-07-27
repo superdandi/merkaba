@@ -179,15 +179,15 @@ export class MerkabaAudio {
     const now = this.ctx.currentTime;
 
     switch (this.mode) {
-      case MODES.SYNC_SAME:
-      case MODES.SYNC_OPPOSITE:
-      case MODES.TOP_ONLY:
-      case MODES.BOTTOM_ONLY:
+      case 'SYNC_SAME':
+      case 'SYNC_OPPOSITE':
+      case 'TOP_ONLY':
+      case 'BOTTOM_ONLY':
         this._topGain.gain.setTargetAtTime(0.15, now, 0.1);
         this._bottomGain.gain.setTargetAtTime(0.15, now, 0.1);
         break;
 
-      case MODES.SYNC_RATIO:
+      case 'SYNC_RATIO':
         this._topGain.gain.setTargetAtTime(0.15, now, 0.1);
         this._bottomGain.gain.setTargetAtTime(0.1, now, 0.1);
         this._bottomOsc.frequency.setTargetAtTime(
@@ -195,7 +195,7 @@ export class MerkabaAudio {
         );
         break;
 
-      case MODES.INDEPENDENT:
+      case 'INDEPENDENT':
         this._topOsc.frequency.setTargetAtTime(
           this.baseFreq * (merkaba.topSpeed / 0.8), now, 0.1
         );
@@ -204,14 +204,14 @@ export class MerkabaAudio {
         );
         break;
 
-      case MODES.PULSE: {
+      case 'PULSE': {
         const envelope = 0.5 + 0.5 * Math.sin(t * merkaba.pulseFreq * Math.PI * 2);
         this._topGain.gain.setTargetAtTime(0.2 * envelope, now, 0.02);
         this._bottomGain.gain.setTargetAtTime(0.2 * envelope, now, 0.02);
         break;
       }
 
-      case MODES.PENDULUM: {
+      case 'PENDULUM': {
         const vibrato = Math.sin(t * merkaba.pendulumFreq * Math.PI * 2) * 15;
         this._topOsc.frequency.setTargetAtTime(this.baseFreq + vibrato, now, 0.02);
         this._bottomOsc.frequency.setTargetAtTime(this.baseFreq - vibrato, now, 0.02);
@@ -220,7 +220,7 @@ export class MerkabaAudio {
         break;
       }
 
-      case MODES.SPIRAL: {
+      case 'SPIRAL': {
         const spiralMod = Math.sin(t * merkaba.spiralFreq * Math.PI * 2) * 30;
         this._topOsc.frequency.setTargetAtTime(this.baseFreq + spiralMod, now, 0.05);
         this._bottomOsc.frequency.setTargetAtTime(this.baseFreq - spiralMod, now, 0.05);
@@ -229,7 +229,7 @@ export class MerkabaAudio {
         break;
       }
 
-      case MODES.ACCEL: {
+      case 'ACCEL': {
         const env = 0.2 + 0.8 * Math.abs(Math.sin(t * merkaba.accelFreq * Math.PI * 2));
         this._topGain.gain.setTargetAtTime(0.2 * env, now, 0.05);
         this._bottomGain.gain.setTargetAtTime(0.2 * env, now, 0.05);
@@ -238,7 +238,7 @@ export class MerkabaAudio {
         break;
       }
 
-      case MODES.CHAOS: {
+      case 'CHAOS': {
         const cTop = merkaba.chaosTop;
         const cBot = merkaba.chaosBottom;
         this._topOsc.frequency.setTargetAtTime(this.baseFreq * (1 + cTop * 0.1), now, 0.1);
@@ -248,7 +248,7 @@ export class MerkabaAudio {
         break;
       }
 
-      case MODES.BREATH: {
+      case 'BREATH': {
         const impulse = merkaba.breathImpulse;
         const breathVol = 0.1 + impulse * 0.3;
         this._topGain.gain.setTargetAtTime(breathVol, now, 0.02);
@@ -258,21 +258,21 @@ export class MerkabaAudio {
         break;
       }
 
-      case MODES.AXIS_X:
+      case 'AXIS_X':
         this._topGain.gain.setTargetAtTime(0.15, now, 0.1);
         this._bottomGain.gain.setTargetAtTime(0.15, now, 0.1);
         this._topOsc.frequency.setTargetAtTime(this.baseFreq * 0.9, now, 0.1);
         this._bottomOsc.frequency.setTargetAtTime(this.baseFreq * 1.1, now, 0.1);
         break;
 
-      case MODES.AXIS_Z:
+      case 'AXIS_Z':
         this._topGain.gain.setTargetAtTime(0.15, now, 0.1);
         this._bottomGain.gain.setTargetAtTime(0.15, now, 0.1);
         this._topOsc.frequency.setTargetAtTime(this.baseFreq * 1.1, now, 0.1);
         this._bottomOsc.frequency.setTargetAtTime(this.baseFreq * 0.9, now, 0.1);
         break;
 
-      case MODES.FREE_3D:
+      case 'FREE_3D':
         this._topGain.gain.setTargetAtTime(0.12, now, 0.1);
         this._bottomGain.gain.setTargetAtTime(0.12, now, 0.1);
         this._lfoGain.gain.setTargetAtTime(8, now, 0.1);
