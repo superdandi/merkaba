@@ -152,7 +152,7 @@ function buildGUI() {
   if (appState.viewMode === 'full') {
     const motionFolder = gui.addFolder('Movimiento');
     motionFolder.add(appState, 'baseSpeed', 0, 3, 0.05).name('Velocidad base').onChange(v => { appState.baseSpeed = v; currentShape.baseSpeed = v; });
-    motionFolder.add(appState, 'separation', 0, 3, 0.05).name('Separación').onChange(v => { appState.separation = v; currentShape.setSeparation(v); });
+    motionFolder.add(appState, 'separation', -3, 3, 0.05).name('Separación').onChange(v => { appState.separation = v; currentShape.setSeparation(v); });
     motionFolder.add(appState, 'ratio', 1, 5, 0.1).name('Ratio').onChange(v => { appState.ratio = v; currentShape.setRatio(v); });
 
     const pulseFolder = gui.addFolder('Pulso / Efectos');
